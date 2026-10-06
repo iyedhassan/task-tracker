@@ -1,5 +1,5 @@
 # Build
-task-cli
+/task-cli
 *.exe
 
 # IDE
@@ -9,3 +9,6 @@ task-cli
 # OS
 .DS_Store
 Thumbs.db
+
+# Application data
+tasks.json

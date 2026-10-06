@@ -56,3 +56,4 @@ func (r *JSONRepository) Save(tasks []task.Task) error {
 
 	return os.WriteFile(r.filePath, data, 0644)
 }
+
