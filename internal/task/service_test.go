@@ -41,6 +41,30 @@ func TestAddTask(t *testing.T) {
 	}
 }
 
+func TestListTasks(t *testing.T) {
+	repository := &fakeRepository{
+		tasks: []Task{
+			{ID: 1, Description: "Task 1", Status: StatusTodo},
+			{ID: 2, Description: "Task 2", Status: StatusInProgress},
+		},
+	}
+
+	service := NewService(repository)
+
+	tasks, err := service.ListTasks()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(tasks) != 2 {
+		t.Fatalf("expected 2 tasks, got %d", len(tasks))
+	}
+
+	if tasks[0].ID != 1 || tasks[1].ID != 2 {
+		t.Fatalf("expected tasks in order [1,2], got [%d,%d]", tasks[0].ID, tasks[1].ID)
+	}
+}
+
 func TestUpdateTask(t *testing.T) {
 	repository := &fakeRepository{
 		tasks: []Task{
@@ -94,6 +118,19 @@ func TestDeleteTask(t *testing.T) {
 	}
 }
 
+func TestDeleteTaskNotFound(t *testing.T) {
+	repository := &fakeRepository{
+		tasks: []Task{{ID: 1, Description: "Task 1"}},
+	}
+
+	service := NewService(repository)
+
+	err := service.DeleteTask(99)
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+}
+
 func TestMarkDone(t *testing.T) {
 	repository := &fakeRepository{
 		tasks: []Task{
@@ -140,6 +177,7 @@ func TestMarkInProgress(t *testing.T) {
 		t.Errorf("expected status %q, got %q", StatusInProgress, updatedTask.Status)
 	}
 }
+
 func TestTaskNotFound(t *testing.T) {
 	repository := &fakeRepository{
 		tasks: []Task{
@@ -155,6 +193,32 @@ func TestTaskNotFound(t *testing.T) {
 
 	_, err := service.UpdateTask(99, "Something")
 
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+}
+
+func TestMarkDoneNotFound(t *testing.T) {
+	repository := &fakeRepository{
+		tasks: []Task{{ID: 1, Description: "Task 1", Status: StatusTodo}},
+	}
+
+	service := NewService(repository)
+
+	_, err := service.MarkDone(99)
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+}
+
+func TestMarkInProgressNotFound(t *testing.T) {
+	repository := &fakeRepository{
+		tasks: []Task{{ID: 1, Description: "Task 1", Status: StatusTodo}},
+	}
+
+	service := NewService(repository)
+
+	_, err := service.MarkInProgress(99)
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
